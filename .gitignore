@@ -1,0 +1,11 @@
+*
+!Makefile
+
+!src
+!src/**
+
+!inc
+!inc/**
+
+!test
+!test/**
