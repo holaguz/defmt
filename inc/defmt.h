@@ -8,9 +8,7 @@
 extern "C" {
 #endif
 
-#ifndef DEFMT_PRINT_MAGIC
-#define DEFMT_PRINT_MAGIC "\01\02\03\04 "
-#endif
+static unsigned char _defmt_terminator[] = {0xDD, 0xEE, 0xFF, 'M'};
 
 #define DEFMT_CAT_(a, b) a##b
 #define DEFMT_MAKE_VAR_ID_(line) DEFMT_CAT_(defmt_id, line)
@@ -75,6 +73,7 @@ extern size_t defmt_comptime_hash(void *const data, size_t n);
     DEFMT_SECT_FMT static const char DEFMT_MAKE_FMT_ID_(__LINE__)[] = fmt;     \
     DEFMT_SECT_ID static size_t DEFMT_MAKE_VAR_ID_(__LINE__);                  \
     FOR_EACH(WRITE, DEFMT_MAKE_VAR_ID_(__LINE__), __VA_ARGS__);                \
+    WRITE(_defmt_terminator); \
   } while (0)
 
 #ifdef __cplusplus
