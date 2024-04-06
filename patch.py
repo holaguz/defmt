@@ -28,6 +28,7 @@ def generate_hashes(filepath: str) -> dict:
     
     id = sorted(id, key=lambda x: x.name)
     fmt = sorted(fmt, key=lambda x: x.name)
+    assert len(id) == len(fmt)
 
     import hashlib
 
@@ -46,7 +47,7 @@ def generate_hashes(filepath: str) -> dict:
         fmt_hash = hashlib.sha256(fmt_strn).digest()[0:nbytes]
         fmt_hash = int.from_bytes(fmt_hash)
 
-        out_table.append([num_id, fmt_strn])
+        out_table.append([fmt_hash, fmt_strn.decode('utf-8')])
         binoffset = id_sect.header.sh_offset + id.entry.st_value
         elf.stream.seek(binoffset)
         before = int.from_bytes(elf.stream.read(id.entry.st_size))
@@ -55,6 +56,9 @@ def generate_hashes(filepath: str) -> dict:
         print(f"Id: {num_id}, fmt: {fmt_strn.decode('utf-8')}")
         print(f"    {hex( before )} -> {hex( after )}")
 
+    out_table = sorted(out_table, key = lambda x: x[0])
+    return out_table
+
 
 if __name__ == "__main__":
 
@@ -62,6 +66,10 @@ if __name__ == "__main__":
         description="Build a binary patch from the given ELF files"
     )
     parser.add_argument("file", help="Path to the base image file")
+    parser.add_argument("--out", default="dict.txt")
     args = parser.parse_args()
 
-    generate_hashes(args.file)
+    map = generate_hashes(args.file)
+    with(open(args.out, 'w') as f):
+        dict = "\n".join([f"{id}: {fmt}" for id,fmt in map])
+        f.write(dict)
