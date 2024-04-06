@@ -49,10 +49,16 @@ def generate_hashes(filepath: str) -> dict:
 
         out_table.append([fmt_hash, fmt_strn.decode('utf-8')])
         binoffset = id_sect.header.sh_offset + id.entry.st_value
+
         elf.stream.seek(binoffset)
         before = int.from_bytes(elf.stream.read(id.entry.st_size))
+
+        elf.stream.seek(binoffset)
         elf.stream.write(fmt_hash.to_bytes(nbytes))
+
+        elf.stream.seek(binoffset)
         after = int.from_bytes(elf.stream.read(id.entry.st_size))
+
         print(f"Id: {num_id}, fmt: {fmt_strn.decode('utf-8')}")
         print(f"    {hex( before )} -> {hex( after )}")
 
