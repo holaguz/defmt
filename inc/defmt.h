@@ -67,7 +67,7 @@ extern size_t defmt_comptime_hash(void *const data, size_t n);
 
 #include <unistd.h>
 
-#define WRITE(field) write(0, &(field), sizeof(typeof(field)));
+#define WRITE(field) write(1, &(field), sizeof(typeof(field)));
 
 #define defmt_printf(fmt, ...)                                                 \
   do {                                                                         \
