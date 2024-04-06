@@ -4,19 +4,7 @@ import argparse
 import re
 import sys
 import struct
-
-def parse_dict(s: str):
-    lines = s.split('\n')
-    lines = [l for l in lines if l != '\x00']
-    m = re.compile('([0-9]*): (.*)')
-    d = {}
-    for l in lines:
-        id, fmt = m.findall(l)[0]
-        id = int(id)
-        d[id] = fmt
-
-    return d
-
+import json
 
 DELIM = b"\xDD\xEE\xFFM"
 
@@ -30,9 +18,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     with open(args.dict, "r") as f:
-        map = f.read()
-
-    d = parse_dict(map)
+        d = dict(json.load(f))
 
     buf = bytes()
     while True:

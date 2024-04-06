@@ -6,6 +6,7 @@ from elftools.elf.elffile import ELFFile
 from icecream import ic
 import re
 
+
 def generate_hashes(filepath: str) -> dict:
     from elftools.elf.sections import SymbolTableSection, Symbol
 
@@ -25,7 +26,7 @@ def generate_hashes(filepath: str) -> dict:
             id.append(s)
         elif "defmt_fmt" in s.name:
             fmt.append(s)
-    
+
     id = sorted(id, key=lambda x: x.name)
     fmt = sorted(fmt, key=lambda x: x.name)
     assert len(id) == len(fmt)
@@ -47,7 +48,7 @@ def generate_hashes(filepath: str) -> dict:
         fmt_hash = hashlib.sha256(fmt_strn).digest()[0:nbytes]
         fmt_hash = int.from_bytes(fmt_hash)
 
-        out_table.append([fmt_hash, fmt_strn.decode('utf-8')])
+        out_table.append([fmt_hash, fmt_strn.decode("utf-8")])
         binoffset = id_sect.header.sh_offset + id.entry.st_value
 
         elf.stream.seek(binoffset)
@@ -59,10 +60,10 @@ def generate_hashes(filepath: str) -> dict:
         elf.stream.seek(binoffset)
         after = int.from_bytes(elf.stream.read(id.entry.st_size))
 
-        print(f"Id: {num_id}, fmt: {fmt_strn.decode('utf-8')}")
-        print(f"    {hex( before )} -> {hex( after )}")
+        sanitized_strn = fmt_strn.decode("utf-8").strip('\x00').strip('\n')
+        print(f"id: {hex(fmt_hash)}, fmt: {sanitized_strn}")
 
-    out_table = sorted(out_table, key = lambda x: x[0])
+    out_table = sorted(out_table, key=lambda x: x[0])
     return out_table
 
 
@@ -76,6 +77,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     map = generate_hashes(args.file)
-    with(open(args.out, 'w') as f):
-        dict = "\n".join([f"{id}: {fmt}" for id,fmt in map])
-        f.write(dict)
+    with open(args.out, "w") as f:
+        import json
+        json.dump(map, f)
