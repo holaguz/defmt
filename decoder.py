@@ -11,9 +11,8 @@ DELIM = b"\xDD\xEE\xFFM"
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(
-        description="Build a binary patch from the given ELF files"
+        description="Decode defmt output from stdin"
     )
-    # parser.add_argument("input", help="Path to the dictionary")
     parser.add_argument("dict", help="Path to the dictionary")
     args = parser.parse_args()
 
